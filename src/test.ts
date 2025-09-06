@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert";
 
-import { anyChar, literal, oneCharOf, parseString, chain, optional, repeat, prefix, suffix, surround, oneOf, integer, Parser, digitNonZero, digit, pattern, patterns, inputString, float } from "./index.js";
+import { anyChar, literal, oneCharOf, parseString, chain, optional, repeat, prefix, suffix, surround, oneOf, integer, Parser, digitNonZero, digit, pattern, patterns, inputString, float, oneCharExcept, repeatAtLeastOnce } from "./index.js";
 
 
 test('simple tests', (t) => {
@@ -27,6 +27,30 @@ test('simple tests', (t) => {
 		const input = "a";
 		const expectedResult = undefined;
 		const parser = oneCharOf("");
+		assert.deepStrictEqual(parseString(input, parser), expectedResult);
+	}
+	{
+		const input = "b";
+		const expectedResult = "b";
+		const parser = oneCharExcept("a");
+		assert.deepStrictEqual(parseString(input, parser), expectedResult);
+	}
+	{
+		const input = "a";
+		const expectedResult = undefined;
+		const parser = oneCharExcept("a");
+		assert.deepStrictEqual(parseString(input, parser), expectedResult);
+	}
+	{
+		const input = "";
+		const expectedResult = undefined;
+		const parser = oneCharExcept("a");
+		assert.deepStrictEqual(parseString(input, parser), expectedResult);
+	}
+	{
+		const input = "a";
+		const expectedResult = "a";
+		const parser = oneCharExcept("");
 		assert.deepStrictEqual(parseString(input, parser), expectedResult);
 	}
 	{
@@ -334,6 +358,18 @@ test('combined tests', (t) => {
 		const input = "Hello";
 		const expectedResult = undefined;
 		const parser = inputString(literal("World"));
+		assert.deepStrictEqual(parseString(input, parser), expectedResult);
+	}
+	{
+		const input = "abcd";
+		const expectedResult = [["a", "b", "c"], "d"];
+		const parser = chain(repeatAtLeastOnce(oneCharOf("abc")), oneCharExcept("abc"));
+		assert.deepStrictEqual(parseString(input, parser), expectedResult);
+	}
+	{
+		const input = "abcd";
+		const expectedResult = [["a", "b", "c"], "d"];
+		const parser = chain(repeatAtLeastOnce(oneCharExcept("d")), oneCharOf("d"));
 		assert.deepStrictEqual(parseString(input, parser), expectedResult);
 	}
 });

@@ -33,3 +33,13 @@ export function oneCharOf(allValidChars: string): Parser<string, string> {
 		}
 	};
 };
+
+export function oneCharExcept(allInvalidChars: string): Parser<string, string> {
+	return function* (input) {
+		let state = input;
+		const next = state.advance();
+		if (next !== undefined && allInvalidChars.indexOf(next[0]) < 0) {
+			yield next;
+		}
+	};
+};
