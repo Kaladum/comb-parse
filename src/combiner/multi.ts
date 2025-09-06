@@ -1,4 +1,7 @@
 import { Parser, ParserResult, ParseState } from "../base.js";
+import { literal } from "../simple.js";
+import { prefix, suffix } from "./additional.js";
+import { map } from "./utils.js";
 
 type ResultByParsers<TParsers> = {
 	[key in keyof TParsers]: ParserResult<TParsers[key]>
@@ -21,17 +24,37 @@ export function chain<TParsers extends Parser<any, unknown>[]>(...parsers: TPars
 	};
 }
 
-export function repeat<TInput, TOutput>(parser: Parser<TInput, TOutput>): Parser<TInput, TOutput[]> {
+export function pattern<TOutput>(strings: TemplateStringsArray, parser: Parser<string, TOutput>): Parser<string, TOutput> {
+	return map(
+		chain(literal(strings[0]), parser, literal(strings[1])),
+		([_pre, value, _post]) => value
+	);
+}
+
+export function patterns<TParsers extends Parser<string, unknown>[]>(strings: TemplateStringsArray, ...parsers: TParsers): Parser<string, ResultByParsers<TParsers>> {
+	console.log(strings, parsers);
+	return suffix(chain(
+		...parsers.map((p, i) => prefix(literal(strings[i]), p))
+	), literal(strings.at(-1)!)) as Parser<string, ResultByParsers<TParsers>>;
+}
+
+export function repeat<TInput, TOutput>(parser: Parser<TInput, TOutput>, minRepeat: number = 0): Parser<TInput, TOutput[]> {
 	return function* (input) {
 		const tasks: [TOutput[], ParseState<TInput>][] = [[[], input]];
 
 		while (tasks.length > 0) {
 			const [valueSoFar, stateSoFar] = tasks.shift()!;
-			yield [valueSoFar, stateSoFar];
+			if (valueSoFar.length >= minRepeat) {
+				yield [valueSoFar, stateSoFar];
+			}
 
 			for (const [value, newState] of parser(stateSoFar)) {
 				tasks.push([[...valueSoFar, value], newState]);
 			}
 		}
-	}
+	};
+}
+
+export function repeatAtLeastOnce<TInput, TOutput>(parser: Parser<TInput, TOutput>): Parser<TInput, TOutput[]> {
+	return repeat(parser, 1);
 }

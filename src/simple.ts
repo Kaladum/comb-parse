@@ -1,5 +1,15 @@
 import { Parser } from "./base.js";
 
+export function anyChar(): Parser<string, string> {
+	return function* (input) {
+		let state = input;
+		const next = state.advance();
+		if (next !== undefined) {
+			yield next;
+		}
+	};
+}
+
 export function literal<TString extends string>(content: TString): Parser<string, TString> {
 	return function* (input) {
 		let state = input;
@@ -13,3 +23,13 @@ export function literal<TString extends string>(content: TString): Parser<string
 		yield [content, state];
 	};
 }
+
+export function oneCharOf(allValidChars: string): Parser<string, string> {
+	return function* (input) {
+		let state = input;
+		const next = state.advance();
+		if (next !== undefined && allValidChars.indexOf(next[0]) >= 0) {
+			yield next;
+		}
+	};
+};

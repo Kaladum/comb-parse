@@ -1,2 +1,4 @@
 export * from "./base.js";
 export * from "./simple.js";
+export * from "./number.js";
+export * from "./combiner/index.js";
