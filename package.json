@@ -4,7 +4,7 @@
   "description": "",
   "license": "MIT",
   "author": "Kaladum",
-  "type": "commonjs",
+  "type": "module",
   "main": "src/index.ts",
   "scripts": {
     "test": "tsc && node --test"

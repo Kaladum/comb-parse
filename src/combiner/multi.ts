@@ -1,4 +1,4 @@
-import { Parser, ParserResult, ParseState } from "../base";
+import { Parser, ParserResult, ParseState } from "../base.js";
 
 type ResultByParsers<TParsers> = {
 	[key in keyof TParsers]: ParserResult<TParsers[key]>

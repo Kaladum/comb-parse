@@ -1,4 +1,4 @@
-import { Parser } from "./base";
+import { Parser } from "./base.js";
 
 export const literal = <TString extends string>(content: TString): Parser<string, TString> => {
 	return function* (input) {

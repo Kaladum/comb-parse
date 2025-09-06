@@ -1,6 +1,6 @@
-import { Parser } from "../base";
-import { chain } from "./multi";
-import { map } from "./utils";
+import { Parser } from "../base.js";
+import { chain } from "./multi.js";
+import { map } from "./utils.js";
 
 export const prefix = <TInput, TOutput>(prefix: Parser<TInput, unknown>, parser: Parser<TInput, TOutput>): Parser<TInput, TOutput> => {
 	return map(chain(prefix, parser), ([_, value]) => value);

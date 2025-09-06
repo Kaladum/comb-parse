@@ -1,4 +1,4 @@
-import { Parser } from "../base";
+import { Parser } from "../base.js";
 
 export const optional = <TInput, TOutput>(parser: Parser<TInput, TOutput>): Parser<TInput, TOutput | undefined> => {
 	return function* (input) {

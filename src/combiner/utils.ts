@@ -1,4 +1,4 @@
-import { Parser } from "../base";
+import { Parser } from "../base.js";
 
 export const map = <TInput, TIntermediate, TOutput>(parser: Parser<TInput, TIntermediate>, callback: (input: TIntermediate) => TOutput): Parser<TInput, TOutput> => {
 	return function* (input) {
