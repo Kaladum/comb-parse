@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert";
 
-import { anyChar, literal, oneCharOf, parseString, chain, optional, repeat, prefix, suffix, surround, oneOf, integer, Parser, digitNonZero, digit, pattern, patterns, inputString } from "./index.js";
+import { anyChar, literal, oneCharOf, parseString, chain, optional, repeat, prefix, suffix, surround, oneOf, integer, Parser, digitNonZero, digit, pattern, patterns, inputString, float } from "./index.js";
 
 
 test('simple tests', (t) => {
@@ -247,6 +247,36 @@ test('number tests', (t) => {
 		const input = "0123";
 		const expectedResult = undefined;
 		const parser = integer(false);
+		assert.deepStrictEqual(parseString(input, parser), expectedResult);
+	}
+	{
+		const input = "1";
+		const expectedResult = 1;
+		const parser = float();
+		assert.deepStrictEqual(parseString(input, parser), expectedResult);
+	}
+	{
+		const input = "1.5";
+		const expectedResult = 1.5;
+		const parser = float();
+		assert.deepStrictEqual(parseString(input, parser), expectedResult);
+	}
+	{
+		const input = "01.5";
+		const expectedResult = 1.5;
+		const parser = float();
+		assert.deepStrictEqual(parseString(input, parser), expectedResult);
+	}
+	{
+		const input = "01.5";
+		const expectedResult = undefined;
+		const parser = float({ allowLeadingZero: false });
+		assert.deepStrictEqual(parseString(input, parser), expectedResult);
+	}
+	{
+		const input = "3,14";
+		const expectedResult = 3.14;
+		const parser = float({ decimalSeparator: "," });
 		assert.deepStrictEqual(parseString(input, parser), expectedResult);
 	}
 });
