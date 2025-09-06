@@ -1,16 +1,18 @@
 export interface ParseState<T> {
-	peek(): T | undefined;
+	readonly position: number;
+	readonly data: T;
+	readonly length: number;
 	advance(): [T, ParseState<T>] | undefined;
 	isEnd(): boolean;
 }
 
 export class StringParseState implements ParseState<string> {
 	public constructor(
-		private readonly data: string,
-		private readonly position = 0,
+		public readonly data: string,
+		public readonly position = 0,
 	) { }
 
-	public readonly isEnd = () => this.position >= this.data.length;
+	public get length() { return this.data.length; }
 	public isEnd() {
 		return this.position >= this.length;
 	}
