@@ -13,10 +13,6 @@ type ResultByParsers<TParsers> = TParsers extends Parser<infer TInput, infer TOu
 type InputByParsers<TParsers> = TParsers extends Parser<infer TInput, infer TOutput>[] ? TInput : never;
 
 export function oneOf<TParsers extends Parser<any, unknown>[]>(...parsers: TParsers): Parser<InputByParsers<TParsers>, ResultByParsers<TParsers>> {
-	if (parsers.length === 0) {
-		throw new Error("There must be at lease one parser provided");
-	}
-
 	return function* (input) {
 		for (const parser of parsers) {
 			for (const [value, newState] of parser(input)) {
