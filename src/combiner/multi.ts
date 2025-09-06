@@ -6,7 +6,7 @@ type ResultByParsers<TParsers> = {
 
 type InputByParsers<TParsers> = TParsers extends Parser<infer TInput, infer TOutput>[] ? TInput : never;
 
-export const chain = <TParsers extends Parser<any, unknown>[]>(...parsers: TParsers): Parser<InputByParsers<TParsers>, ResultByParsers<TParsers>> => {
+export function chain<TParsers extends Parser<any, unknown>[]>(...parsers: TParsers): Parser<InputByParsers<TParsers>, ResultByParsers<TParsers>> {
 	return function* (input) {
 		if (parsers.length === 0) {
 			yield [[] as ResultByParsers<TParsers>, input];
@@ -21,7 +21,7 @@ export const chain = <TParsers extends Parser<any, unknown>[]>(...parsers: TPars
 	};
 }
 
-export const repeat = <TInput, TOutput>(parser: Parser<TInput, TOutput>): Parser<TInput, TOutput[]> => {
+export function repeat<TInput, TOutput>(parser: Parser<TInput, TOutput>): Parser<TInput, TOutput[]> {
 	return function* (input) {
 		const tasks: [TOutput[], ParseState<TInput>][] = [[[], input]];
 

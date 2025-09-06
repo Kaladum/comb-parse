@@ -1,6 +1,6 @@
 import { Parser } from "./base.js";
 
-export const literal = <TString extends string>(content: TString): Parser<string, TString> => {
+export function literal<TString extends string>(content: TString): Parser<string, TString> {
 	return function* (input) {
 		let state = input;
 		for (const c of content) {
@@ -11,5 +11,5 @@ export const literal = <TString extends string>(content: TString): Parser<string
 			state = next[1];
 		}
 		yield [content, state];
-	}
+	};
 }

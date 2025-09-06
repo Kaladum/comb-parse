@@ -11,8 +11,10 @@ export class StringParseState implements ParseState<string> {
 	) { }
 
 	public readonly isEnd = () => this.position >= this.data.length;
-	public readonly peek = (): string | undefined => this.data[this.position];
-	public readonly advance = (): [string, ParseState<string>] | undefined => {
+	public isEnd() {
+		return this.position >= this.length;
+	}
+	public advance(): [string, ParseState<string>] | undefined {
 		if (!this.isEnd()) {
 			return [this.data[this.position], new StringParseState(this.data, this.position + 1)];
 		} else {
@@ -23,7 +25,7 @@ export class StringParseState implements ParseState<string> {
 
 export type Parser<TInput, TOutput> = (input: ParseState<TInput>) => Iterable<[TOutput, ParseState<TInput>]>;
 
-export const parseString = <TResult>(input: string, parser: Parser<string, TResult>): TResult | undefined => {
+export function parseString<TResult>(input: string, parser: Parser<string, TResult>): TResult | undefined {
 	const state = new StringParseState(input);
 	for (const [result, newState] of parser(state)) {
 		if (newState.isEnd()) {
