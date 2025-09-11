@@ -1,7 +1,7 @@
 import { Parser, ParserResult, ParseState } from "../base.js";
 import { literal } from "../simple.js";
 import { prefix, suffix } from "./additional.js";
-import { map } from "./utils.js";
+import { map } from "../utils.js";
 
 type ResultByParsers<TParsers> = {
 	[key in keyof TParsers]: ParserResult<TParsers[key]>
