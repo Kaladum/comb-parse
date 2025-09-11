@@ -43,3 +43,9 @@ export function oneCharExcept(allInvalidChars: string): Parser<string, string> {
 		}
 	};
 };
+
+export function empty<TInput>(): Parser<TInput, undefined> {
+	return function* (input) {
+		yield [undefined, input];
+	};
+}
