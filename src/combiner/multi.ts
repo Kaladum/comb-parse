@@ -32,8 +32,7 @@ export function pattern<TOutput>(strings: TemplateStringsArray, parser: Parser<s
 }
 
 export function patterns<TParsers extends Parser<string, unknown>[]>(strings: TemplateStringsArray, ...parsers: TParsers): Parser<string, ResultByParsers<TParsers>> {
-	console.log(strings, parsers);
-	return suffix(chain(
+		return suffix(chain(
 		...parsers.map((p, i) => prefix(literal(strings[i]), p))
 	), literal(strings.at(-1)!)) as Parser<string, ResultByParsers<TParsers>>;
 }
