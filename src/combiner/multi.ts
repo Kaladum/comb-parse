@@ -1,7 +1,8 @@
 import { Parser, ParserResult, ParseState } from "../base.js";
-import { literal } from "../simple.js";
+import { empty, literal } from "../simple.js";
 import { prefix, suffix } from "./additional.js";
 import { map } from "../utils.js";
+import { oneOf, optional } from "./choice.js";
 
 type ResultByParsers<TParsers> = {
 	[key in keyof TParsers]: ParserResult<TParsers[key]>
@@ -32,7 +33,7 @@ export function pattern<TOutput>(strings: TemplateStringsArray, parser: Parser<s
 }
 
 export function patterns<TParsers extends Parser<string, unknown>[]>(strings: TemplateStringsArray, ...parsers: TParsers): Parser<string, ResultByParsers<TParsers>> {
-		return suffix(chain(
+	return suffix(chain(
 		...parsers.map((p, i) => prefix(literal(strings[i]), p))
 	), literal(strings.at(-1)!)) as Parser<string, ResultByParsers<TParsers>>;
 }
@@ -52,6 +53,35 @@ export function repeat<TInput, TOutput>(parser: Parser<TInput, TOutput>, minRepe
 			}
 		}
 	};
+}
+
+export function separatedBy<TInput, TOutput>(parser: Parser<TInput, TOutput>, separator: Parser<TInput, unknown>, { allowTrailingSeparator = false } = {}): Parser<TInput, TOutput[]> {
+	if (allowTrailingSeparator) {
+		return oneOf(
+			map(
+				chain(
+					parser,
+					repeat(prefix(separator, parser)),
+					optional(separator),
+				),
+				([firstValue, moreValues]) => [firstValue, ...moreValues]
+			),
+			map(parser, v => [v]),
+			map(empty<TInput>(), () => [] as TOutput[]),
+		);
+	} else {
+		return oneOf(
+			map(
+				chain(
+					parser,
+					repeat(prefix(separator, parser))
+				),
+				([firstValue, moreValues]) => [firstValue, ...moreValues]
+			),
+			map(parser, v => [v]),
+			map(empty<TInput>(), () => [] as TOutput[]),
+		);
+	}
 }
 
 export function repeatAtLeastOnce<TInput, TOutput>(parser: Parser<TInput, TOutput>): Parser<TInput, TOutput[]> {
