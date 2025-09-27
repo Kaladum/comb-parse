@@ -7,7 +7,9 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "test": "tsc && node --experimental-test-coverage --test ./js/test.js"
+    "test": "tsc && node --experimental-test-coverage --test ./js/test.js",
+    "test-json": "tsc && node --test ./js/json.js",
+    "run": "tsc && node ./js/json.js"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
