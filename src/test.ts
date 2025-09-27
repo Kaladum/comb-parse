@@ -164,7 +164,7 @@ test('repeat tests', (t) => {
 	{
 		const input = "";
 		const expectedResult = undefined;
-		const parser = repeat(literal("Hello"), 1);
+		const parser = repeatAtLeastOnce(literal("Hello"));
 		assert.deepStrictEqual(parseString(input, parser), expectedResult);
 	}
 	{
@@ -327,31 +327,31 @@ test('combined tests', (t) => {
 	{
 		const input = "ABCD";
 		const expectedResult = ["A", "B", "C", "D"];
-		const parser = optional(repeat(oneCharOf("ABCD"), 1));
+		const parser = optional(repeatAtLeastOnce(oneCharOf("ABCD")));
 		assert.deepStrictEqual(parseString(input, parser), expectedResult);
 	}
 	{
 		const input = "ABCD";
 		const expectedResult = ["A", "B", "C", "D"];
-		const parser = oneOf(repeat(oneCharOf("ABCD"), 1), repeat(oneCharOf("DEF"), 1));
+		const parser = oneOf(repeatAtLeastOnce(oneCharOf("ABCD")), repeat(oneCharOf("DEF")));
 		assert.deepStrictEqual(parseString(input, parser), expectedResult);
 	}
 	{
 		const input = "abbb";
 		const expectedResult = ["a", ["b", "b", "b"]];
-		const parser = chain(literal("a"), repeat(literal("b"), 1));
+		const parser = chain(literal("a"), repeatAtLeastOnce(literal("b")));
 		assert.deepStrictEqual(parseString(input, parser), expectedResult);
 	}
 	{
 		const input = "Hello";
 		const expectedResult = ["H", "e", "l", "l", "o"];
-		const parser = repeat(anyChar(), 1);
+		const parser = repeatAtLeastOnce(anyChar());
 		assert.deepStrictEqual(parseString(input, parser), expectedResult);
 	}
 	{
 		const input = "Hello";
 		const expectedResult = "Hello";
-		const parser = inputString(repeat(anyChar(), 1));
+		const parser = inputString(repeatAtLeastOnce(anyChar()));
 		assert.deepStrictEqual(parseString(input, parser), expectedResult);
 	}
 	{

@@ -38,7 +38,38 @@ export function patterns<TParsers extends Parser<string, unknown>[]>(strings: Te
 	), literal(strings.at(-1)!)) as Parser<string, ResultByParsers<TParsers>>;
 }
 
-export function repeat<TInput, TOutput>(parser: Parser<TInput, TOutput>, minRepeat: number = 0): Parser<TInput, TOutput[]> {
+export function repeat<TInput, TOutput>(parser: Parser<TInput, TOutput>, { minRepeat = 0, maxRepeat = Infinity, greedy = true } = {}): Parser<TInput, TOutput[]> {
+	if (greedy) {
+		return repeatGreedy(parser, { minRepeat, maxRepeat });
+	} else {
+		return repeatNonGreedy<TInput, TOutput>(parser, { minRepeat, maxRepeat });
+	}
+}
+
+function repeatGreedy<TInput, TOutput>(parser: Parser<TInput, TOutput>, { minRepeat = 0, maxRepeat = Infinity } = {}): Parser<TInput, TOutput[]> {
+	return function* (input) {
+		const tasks: [TOutput[], ParseState<TInput>, Iterator<[TOutput, ParseState<TInput>]>][] = [[[], input, parser(input)[Symbol.iterator]()]];
+
+		while (tasks.length > 0) {
+			const [valueSoFar, stateSoFar, childIterator] = tasks.pop()!;
+
+			if (valueSoFar.length < maxRepeat) {
+				const { value: childValue, done } = childIterator.next();
+
+				if (done) {
+					if (valueSoFar.length >= minRepeat) {
+						yield [valueSoFar, stateSoFar];
+					}
+				} else {
+					const [newValue, newState] = childValue;
+					tasks.push([[...valueSoFar, newValue], newState, parser(newState)[Symbol.iterator]()]);
+				}
+			}
+		}
+	}
+}
+
+function repeatNonGreedy<TInput, TOutput>(parser: Parser<TInput, TOutput>, { minRepeat = 0, maxRepeat = 0 } = {}): Parser<TInput, TOutput[]> {
 	return function* (input) {
 		const tasks: [TOutput[], ParseState<TInput>][] = [[[], input]];
 
@@ -48,20 +79,22 @@ export function repeat<TInput, TOutput>(parser: Parser<TInput, TOutput>, minRepe
 				yield [valueSoFar, stateSoFar];
 			}
 
-			for (const [value, newState] of parser(stateSoFar)) {
-				tasks.push([[...valueSoFar, value], newState]);
+			if (valueSoFar.length < maxRepeat) {
+				for (const [value, newState] of parser(stateSoFar)) {
+					tasks.push([[...valueSoFar, value], newState]);
+				}
 			}
 		}
 	};
 }
 
-export function separatedBy<TInput, TOutput>(parser: Parser<TInput, TOutput>, separator: Parser<TInput, unknown>, { allowTrailingSeparator = false } = {}): Parser<TInput, TOutput[]> {
+export function separatedBy<TInput, TOutput>(parser: Parser<TInput, TOutput>, separator: Parser<TInput, unknown>, { allowTrailingSeparator = false, greedy = true } = {}): Parser<TInput, TOutput[]> {
 	if (allowTrailingSeparator) {
 		return oneOf(
 			map(
 				chain(
 					parser,
-					repeat(prefix(separator, parser)),
+					repeat(prefix(separator, parser), { greedy }),
 					optional(separator),
 				),
 				([firstValue, moreValues]) => [firstValue, ...moreValues]
@@ -74,7 +107,7 @@ export function separatedBy<TInput, TOutput>(parser: Parser<TInput, TOutput>, se
 			map(
 				chain(
 					parser,
-					repeat(prefix(separator, parser))
+					repeat(prefix(separator, parser), { greedy })
 				),
 				([firstValue, moreValues]) => [firstValue, ...moreValues]
 			),
@@ -84,6 +117,6 @@ export function separatedBy<TInput, TOutput>(parser: Parser<TInput, TOutput>, se
 	}
 }
 
-export function repeatAtLeastOnce<TInput, TOutput>(parser: Parser<TInput, TOutput>): Parser<TInput, TOutput[]> {
-	return repeat(parser, 1);
+export function repeatAtLeastOnce<TInput, TOutput>(parser: Parser<TInput, TOutput>, { greedy = true, maxRepeat = Infinity } = {}): Parser<TInput, TOutput[]> {
+	return repeat(parser, { minRepeat: 1, greedy, maxRepeat });
 }
