@@ -1,20 +1,20 @@
 import { test } from "node:test";
 import assert from "node:assert";
 
-import { anyChar, literal, oneCharOf, parseString, chain, optional, repeat, prefix, suffix, surround, oneOf, integer, Parser, digitNonZero, digit, pattern, patterns, inputString, float, oneCharExcept, repeatAtLeastOnce } from "./index.js";
+import { oneChar, literal, oneCharOf, parseString, chain, optional, repeat, prefix, suffix, surround, oneOf, integer, Parser, digitNonZero, digit, pattern, patterns, inputString, float, oneCharExcept, repeatAtLeastOnce } from "./index.js";
 
 
 test('simple tests', (t) => {
 	{
 		const input = "a";
 		const expectedResult = "a";
-		const parser = anyChar();
+		const parser = oneChar();
 		assert.deepStrictEqual(parseString(input, parser), expectedResult);
 	}
 	{
 		const input = "";
 		const expectedResult = undefined;
-		const parser = anyChar();
+		const parser = oneChar();
 		assert.deepStrictEqual(parseString(input, parser), expectedResult);
 	}
 	{
@@ -345,13 +345,13 @@ test('combined tests', (t) => {
 	{
 		const input = "Hello";
 		const expectedResult = ["H", "e", "l", "l", "o"];
-		const parser = repeatAtLeastOnce(anyChar());
+		const parser = repeatAtLeastOnce(oneChar());
 		assert.deepStrictEqual(parseString(input, parser), expectedResult);
 	}
 	{
 		const input = "Hello";
 		const expectedResult = "Hello";
-		const parser = inputString(repeatAtLeastOnce(anyChar()));
+		const parser = inputString(repeatAtLeastOnce(oneChar()));
 		assert.deepStrictEqual(parseString(input, parser), expectedResult);
 	}
 	{

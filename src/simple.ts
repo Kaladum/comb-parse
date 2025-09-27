@@ -1,6 +1,6 @@
 import { Parser } from "./base.js";
 
-export function anyChar(): Parser<string, string> {
+export function oneChar(): Parser<string, string> {
 	return function* (input) {
 		let state = input;
 		const next = state.advance();
