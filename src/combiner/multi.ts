@@ -1,7 +1,7 @@
 import { Parser, ParserResult, ParseState } from "../base.js";
 import { empty, literal } from "../simple.js";
 import { prefix, suffix } from "./additional.js";
-import { map } from "../utils.js";
+import { map, mapConst } from "../utils.js";
 import { oneOf, optional } from "./choice.js";
 
 type ResultByParsers<TParsers> = {
@@ -100,7 +100,7 @@ export function separatedBy<TInput, TOutput>(parser: Parser<TInput, TOutput>, se
 				([firstValue, moreValues]) => [firstValue, ...moreValues]
 			),
 			map(parser, v => [v]),
-			map(empty<TInput>(), () => [] as TOutput[]),
+			mapConst(empty<TInput>(), [] as TOutput[]),
 		);
 	} else {
 		return oneOf(
@@ -112,7 +112,7 @@ export function separatedBy<TInput, TOutput>(parser: Parser<TInput, TOutput>, se
 				([firstValue, moreValues]) => [firstValue, ...moreValues]
 			),
 			map(parser, v => [v]),
-			map(empty<TInput>(), () => [] as TOutput[]),
+			mapConst(empty<TInput>(), [] as TOutput[]),
 		);
 	}
 }
