@@ -37,5 +37,32 @@ export function parseString<TResult>(input: string, parser: Parser<string, TResu
 	return undefined;
 }
 
+export function parseStringAll<TResult>(input: string, parser: Parser<string, TResult>): TResult[] {
+	const state = new StringParseState(input);
+	const results: TResult[] = [];
+	for (const [result, newState] of parser(state)) {
+		if (newState.isEnd()) {
+			results.push(result);
+		}
+	}
+	return results;
+}
+
+export function parseStringUnique<TResult>(input: string, parser: Parser<string, TResult>): TResult | undefined {
+	const state = new StringParseState(input);
+	let found = false;
+	let uniqueResult: TResult | undefined = undefined;
+	for (const [result, newState] of parser(state)) {
+		if (newState.isEnd()) {
+			if (found) {
+				return undefined; // not unique
+			}
+			found = true;
+			uniqueResult = result;
+		}
+	}
+	return found ? uniqueResult : undefined;
+}
+
 export type ParserInput<T> = T extends Parser<infer TInput, infer TOutput> ? TInput : never;
 export type ParserResult<T> = T extends Parser<infer TInput, infer TOutput> ? TOutput : never;
