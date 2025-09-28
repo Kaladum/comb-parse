@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert";
 
-import { oneChar, literal, oneCharOf, chain, optional, repeat, prefix, suffix, surround, oneOf, integer, Parser, digitNonZero, digit, pattern, patterns, inputString, float, oneCharExcept, repeatAtLeastOnce, parseStringUnique, parseStringAll, separatedBy, parseString } from "./index.js";
+import { oneChar, literal, oneCharOf, chain, optional, repeat, prefix, suffix, surround, oneOf, integer, Parser, digitNonZero, digit, pattern, patterns, inputString, float, oneCharExcept, repeatAtLeastOnce, parseStringUnique, parseStringAll, separatedBy, parseString, whitespace, whitespaces, mapConst, recursive } from "./index.js";
 
 
 test('simple tests', (t) => {
@@ -265,6 +265,36 @@ test('greed tests', (t) => {
 	}
 });
 
+test('utils tests', (t) => {
+	{
+		const input = " 	42";
+		const expectedResult = 42;
+		const parser = prefix(whitespaces(), integer());
+		assert.deepStrictEqual(parseStringUnique(input, parser), expectedResult);
+	}
+	{
+		const input = " 	42  ";
+		const expectedResult = 42;
+		const parser = surround(whitespaces(), integer(), whitespaces());
+		assert.deepStrictEqual(parseStringUnique(input, parser), expectedResult);
+	}
+	{
+		const input = "Hello";
+		const expectedResult = 42;
+		const parser = mapConst(literal("Hello"), 42);
+		assert.deepStrictEqual(parseStringUnique(input, parser), expectedResult);
+	}
+	{
+		const input = "[[[Hello]]]";
+		const expectedResult = "Hello";
+		const parser: Parser<string, string> = oneOf(
+			literal("Hello"),
+			surround(literal("["), recursive(() => parser), literal("]"))
+		);
+		assert.deepStrictEqual(parseStringUnique(input, parser), expectedResult);
+	}
+});
+
 test('additional tests', (t) => {
 	{
 		const input = "_Hello";
@@ -282,6 +312,21 @@ test('additional tests', (t) => {
 		const input = "_Hello_";
 		const expectedResult = "Hello";
 		const parser = surround(literal("_"), literal("Hello"), literal("_"));
+		assert.deepStrictEqual(parseStringUnique(input, parser), expectedResult);
+	}
+	{
+		const input = "Hello";
+		const expectedResult = undefined;
+		const parser = oneOf() as Parser<string, string>;
+		assert.deepStrictEqual(parseString(input, parser), expectedResult);
+	}
+	{
+		const input = "Hello";
+		const expectedResult = undefined;
+		const parser = oneOf(
+			literal("Hello"),
+			literal("Hello"),
+		);
 		assert.deepStrictEqual(parseStringUnique(input, parser), expectedResult);
 	}
 });
