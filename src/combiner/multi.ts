@@ -10,6 +10,11 @@ type ResultByParsers<TParsers> = {
 
 type InputByParsers<TParsers> = TParsers extends Parser<infer TInput, infer TOutput>[] ? TInput : never;
 
+/**
+ * Creates a parser that runs multiple parsers in sequence, yielding an array of their results.
+ * @param parsers The parsers to run in sequence.
+ * @returns A parser yielding an array of results.
+ */
 export function chain<TParsers extends Parser<any, unknown>[]>(...parsers: TParsers): Parser<InputByParsers<TParsers>, ResultByParsers<TParsers>> {
 	return function* (input) {
 		if (parsers.length === 0) {
@@ -25,6 +30,12 @@ export function chain<TParsers extends Parser<any, unknown>[]>(...parsers: TPars
 	};
 }
 
+/**
+ * Creates a parser that uses a string with a placeholder to parse a text and return the parsing result of the placeholder.
+ * @param strings Template string.
+ * @param parser Parser to match the placeholder.
+ * @returns A parser yielding the placeholder parse results.
+ */
 export function pattern<TOutput>(strings: TemplateStringsArray, parser: Parser<string, TOutput>): Parser<string, TOutput> {
 	return map(
 		chain(literal(strings[0]), parser, literal(strings[1])),
@@ -32,12 +43,24 @@ export function pattern<TOutput>(strings: TemplateStringsArray, parser: Parser<s
 	);
 }
 
+/**
+ * Creates a parser that uses a string with multiple placeholders to parse a text and return the parsing results of the placeholder.
+ * @param strings Template string.
+ * @param parsers Parsers to match the placeholders.
+ * @returns A parser yielding an array of results from the inner parsers.
+ */
 export function patterns<TParsers extends Parser<string, unknown>[]>(strings: TemplateStringsArray, ...parsers: TParsers): Parser<string, ResultByParsers<TParsers>> {
 	return suffix(chain(
 		...parsers.map((p, i) => prefix(literal(strings[i]), p))
 	), literal(strings.at(-1)!)) as Parser<string, ResultByParsers<TParsers>>;
 }
 
+/**
+ * Creates a parser that matches a parser zero or more times.
+ * @param parser The parser to repeat.
+ * @param options Options for minRepeat, maxRepeat, and greedy (longest match first).
+ * @returns A parser yielding arrays of results.
+ */
 export function repeat<TInput, TOutput>(parser: Parser<TInput, TOutput>, { minRepeat = 0, maxRepeat = Infinity, greedy = true } = {}): Parser<TInput, TOutput[]> {
 	if (greedy) {
 		return repeatGreedy(parser, { minRepeat, maxRepeat });
@@ -88,6 +111,13 @@ function repeatNonGreedy<TInput, TOutput>(parser: Parser<TInput, TOutput>, { min
 	};
 }
 
+/**
+ * Creates a parser that matches a sequence of values separated by a separator parser.
+ * @param parser The parser for values.
+ * @param separator The parser for separators.
+ * @param options Options for allowing trailing separator and greedy matching.
+ * @returns A parser yielding arrays of results.
+ */
 export function separatedBy<TInput, TOutput>(parser: Parser<TInput, TOutput>, separator: Parser<TInput, unknown>, { allowTrailingSeparator = false, greedy = true } = {}): Parser<TInput, TOutput[]> {
 	if (allowTrailingSeparator) {
 		return oneOf(
@@ -117,6 +147,12 @@ export function separatedBy<TInput, TOutput>(parser: Parser<TInput, TOutput>, se
 	}
 }
 
+/**
+ * Creates a parser that matches a parser one or more times.
+ * @param parser The parser to repeat.
+ * @param options Options for greedy and maxRepeat.
+ * @returns A parser yielding arrays of results.
+ */
 export function repeatAtLeastOnce<TInput, TOutput>(parser: Parser<TInput, TOutput>, { greedy = true, maxRepeat = Infinity } = {}): Parser<TInput, TOutput[]> {
 	return repeat(parser, { minRepeat: 1, greedy, maxRepeat });
 }
