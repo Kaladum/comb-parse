@@ -1,4 +1,4 @@
-import { Parser, ParserResult, ParseState } from "../base.js";
+import { InvalidParserError, Parser, ParserResult, ParseState } from "../base.js";
 import { empty, literal } from "../simple.js";
 import { prefix, suffix } from "./additional.js";
 import { map, mapConst } from "../utils.js";
@@ -71,6 +71,7 @@ export function repeat<TInput, TOutput>(parser: Parser<TInput, TOutput>, { minRe
 }
 
 function repeatGreedy<TInput, TOutput>(parser: Parser<TInput, TOutput>, { minRepeat = 0, maxRepeat = Infinity } = {}): Parser<TInput, TOutput[]> {
+	const safeParser = validateNonInfiniteLoop(parser);
 	return function* (input) {
 		const tasks: [TOutput[], ParseState<TInput>, Iterator<[TOutput, ParseState<TInput>]>][] = [[[], input, parser(input)[Symbol.iterator]()]];
 
@@ -86,7 +87,7 @@ function repeatGreedy<TInput, TOutput>(parser: Parser<TInput, TOutput>, { minRep
 					}
 				} else {
 					const [newValue, newState] = childValue;
-					tasks.push([[...valueSoFar, newValue], newState, parser(newState)[Symbol.iterator]()]);
+					tasks.push([[...valueSoFar, newValue], newState, safeParser(newState)[Symbol.iterator]()]);
 				}
 			} else {
 				yield [valueSoFar, stateSoFar];
@@ -96,6 +97,7 @@ function repeatGreedy<TInput, TOutput>(parser: Parser<TInput, TOutput>, { minRep
 }
 
 function repeatNonGreedy<TInput, TOutput>(parser: Parser<TInput, TOutput>, { minRepeat = 0, maxRepeat = 0 } = {}): Parser<TInput, TOutput[]> {
+	const safeParser = validateNonInfiniteLoop(parser);
 	return function* (input) {
 		const tasks: [TOutput[], ParseState<TInput>][] = [[[], input]];
 
@@ -106,10 +108,21 @@ function repeatNonGreedy<TInput, TOutput>(parser: Parser<TInput, TOutput>, { min
 			}
 
 			if (valueSoFar.length < maxRepeat) {
-				for (const [value, newState] of parser(stateSoFar)) {
+				for (const [value, newState] of safeParser(stateSoFar)) {
 					tasks.push([[...valueSoFar, value], newState]);
 				}
 			}
+		}
+	};
+}
+
+function validateNonInfiniteLoop<TInput, TOutput>(parser: Parser<TInput, TOutput>): Parser<TInput, TOutput> {
+	return function* (input) {
+		for (const [value, newState] of parser(input)) {
+			if (newState.position === input.position) {
+				throw new InvalidParserError("Infinite loop detected: Parser did not consume any input.");
+			}
+			yield [value, newState];
 		}
 	};
 }

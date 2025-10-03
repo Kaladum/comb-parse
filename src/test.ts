@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert";
 
-import { oneChar, literal, oneCharOf, chain, optional, repeat, prefix, suffix, surround, oneOf, integer, Parser, digitNonZero, digit, pattern, patterns, inputString, float, oneCharExcept, repeatAtLeastOnce, parseStringUnique, parseStringAll, separatedBy, parseString, whitespaces, mapConst, recursive, check, repeatExactly } from "./index.js";
+import { oneChar, literal, oneCharOf, chain, optional, repeat, prefix, suffix, surround, oneOf, integer, Parser, digitNonZero, digit, pattern, patterns, inputString, float, oneCharExcept, repeatAtLeastOnce, parseStringUnique, parseStringAll, separatedBy, parseString, whitespaces, mapConst, recursive, check, repeatExactly, InvalidParserError } from "./index.js";
 
 
 test("simple tests", () => {
@@ -172,6 +172,11 @@ test("repeat tests", () => {
 		const expectedResult = ["Hello", "Hello"];
 		const parser = repeat(literal("Hello"));
 		assert.deepStrictEqual(parseStringUnique(input, parser), expectedResult);
+	}
+	{
+		const input = "HelloHello";
+		const parser = repeat(optional(literal("Hello")));
+		assert.throws(() => parseStringUnique(input, parser), InvalidParserError);
 	}
 	{
 		const input = "HelloHelloHello";

@@ -104,3 +104,5 @@ export type ParserInput<T> = T extends Parser<infer TInput, infer _TOutput> ? TI
  * @template T The parser type.
  */
 export type ParserResult<T> = T extends Parser<infer _TInput, infer TOutput> ? TOutput : never;
+
+export class InvalidParserError extends Error { }
