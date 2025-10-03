@@ -159,3 +159,13 @@ export function separatedBy<TInput, TOutput>(parser: Parser<TInput, TOutput>, se
 export function repeatAtLeastOnce<TInput, TOutput>(parser: Parser<TInput, TOutput>, { greedy = true, maxRepeat = Infinity } = {}): Parser<TInput, TOutput[]> {
 	return repeat(parser, { minRepeat: 1, greedy, maxRepeat });
 }
+
+/**
+ * Creates a parser that applies the given parser exactly count times in sequence.
+ * @param parser - The parser to be applied repeatedly.
+ * @param count - The exact number of times to apply the parser.
+ * @returns A parser that returns an array of results from each successful application of the parser.
+ */
+export function repeatExactly<TInput, TOutput, TCount extends number>(parser: Parser<TInput, TOutput>, count: TCount): Parser<TInput, TOutput[] & { length: TCount }> {
+	return repeat(parser, { minRepeat: count, maxRepeat: count }) as Parser<TInput, TOutput[] & { length: TCount }>;
+}
