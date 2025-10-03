@@ -6,8 +6,7 @@ import { Parser } from "./base.js";
  */
 export function oneChar(): Parser<string, string> {
 	return function* (input) {
-		let state = input;
-		const next = state.advance();
+		const next = input.advance();
 		if (next !== undefined) {
 			yield next;
 		}
@@ -40,8 +39,7 @@ export function literal<TString extends string>(content: TString): Parser<string
  */
 export function oneCharOf(allValidChars: string): Parser<string, string> {
 	return function* (input) {
-		let state = input;
-		const next = state.advance();
+		const next = input.advance();
 		if (next !== undefined && allValidChars.indexOf(next[0]) >= 0) {
 			yield next;
 		}
@@ -55,8 +53,7 @@ export function oneCharOf(allValidChars: string): Parser<string, string> {
  */
 export function oneCharExcept(allInvalidChars: string): Parser<string, string> {
 	return function* (input) {
-		let state = input;
-		const next = state.advance();
+		const next = input.advance();
 		if (next !== undefined && allInvalidChars.indexOf(next[0]) < 0) {
 			yield next;
 		}

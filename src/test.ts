@@ -1,10 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert";
 
-import { oneChar, literal, oneCharOf, chain, optional, repeat, prefix, suffix, surround, oneOf, integer, Parser, digitNonZero, digit, pattern, patterns, inputString, float, oneCharExcept, repeatAtLeastOnce, parseStringUnique, parseStringAll, separatedBy, parseString, whitespace, whitespaces, mapConst, recursive } from "./index.js";
+import { oneChar, literal, oneCharOf, chain, optional, repeat, prefix, suffix, surround, oneOf, integer, Parser, digitNonZero, digit, pattern, patterns, inputString, float, oneCharExcept, repeatAtLeastOnce, parseStringUnique, parseStringAll, separatedBy, parseString, whitespaces, mapConst, recursive } from "./index.js";
 
 
-test('simple tests', (t) => {
+test("simple tests", () => {
 	{
 		const input = "a";
 		const expectedResult = "a";
@@ -67,7 +67,7 @@ test('simple tests', (t) => {
 	}
 });
 
-test('chain tests', (t) => {
+test("chain tests", () => {
 	{
 		const input = "Hello";
 		const expectedResult = ["Hello"];
@@ -154,7 +154,7 @@ test('chain tests', (t) => {
 	}
 });
 
-test('repeat tests', (t) => {
+test("repeat tests", () => {
 	{
 		const input = "";
 		const expectedResult: string[] = [];
@@ -205,7 +205,7 @@ test('repeat tests', (t) => {
 	}
 });
 
-test('choice tests', (t) => {
+test("choice tests", () => {
 	{
 		const input = "";
 		const expectedResult = undefined;
@@ -244,7 +244,7 @@ test('choice tests', (t) => {
 	}
 });
 
-test('greed tests', (t) => {
+test("greed tests", () => {
 	{
 		const input = "aaa";
 		const expectedResult = [["a", "a", "a"], []];
@@ -265,7 +265,7 @@ test('greed tests', (t) => {
 	}
 });
 
-test('utils tests', (t) => {
+test("utils tests", () => {
 	{
 		const input = " 	42";
 		const expectedResult = 42;
@@ -289,13 +289,13 @@ test('utils tests', (t) => {
 		const expectedResult = "Hello";
 		const parser: Parser<string, string> = oneOf(
 			literal("Hello"),
-			surround(literal("["), recursive(() => parser), literal("]"))
+			surround(literal("["), recursive(() => parser), literal("]")),
 		);
 		assert.deepStrictEqual(parseStringUnique(input, parser), expectedResult);
 	}
 });
 
-test('additional tests', (t) => {
+test("additional tests", () => {
 	{
 		const input = "_Hello";
 		const expectedResult = "Hello";
@@ -331,7 +331,7 @@ test('additional tests', (t) => {
 	}
 });
 
-test('number tests', (t) => {
+test("number tests", () => {
 	{
 		const input = "0";
 		const expectedResult = undefined;
@@ -400,7 +400,7 @@ test('number tests', (t) => {
 	}
 });
 
-test('combined tests', (t) => {
+test("combined tests", () => {
 	{
 		const input = "HelloHelloWorld";
 		const expectedResult = [["Hello", "Hello"], "World"];

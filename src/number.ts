@@ -52,7 +52,7 @@ export function float({ allowLeadingZero = true, decimalSeparator = "." } = {}):
 		map(integerPart, parseInt),
 		map(
 			chain(integerPart, literal(decimalSeparator), fractionalPart),
-			([integer, _, fraction]) => parseFloat(integer + "." + fraction)
+			([integer, _, fraction]) => parseFloat(integer + "." + fraction),
 		),
 	);
 }

@@ -8,13 +8,14 @@ type ResultByParsers<TParsers> = {
 	[key in keyof TParsers]: ParserResult<TParsers[key]>
 };
 
-type InputByParsers<TParsers> = TParsers extends Parser<infer TInput, infer TOutput>[] ? TInput : never;
+type InputByParsers<TParsers> = TParsers extends Parser<infer TInput, infer _TOutput>[] ? TInput : never;
 
 /**
  * Creates a parser that runs multiple parsers in sequence, yielding an array of their results.
  * @param parsers The parsers to run in sequence.
  * @returns A parser yielding an array of results.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function chain<TParsers extends Parser<any, unknown>[]>(...parsers: TParsers): Parser<InputByParsers<TParsers>, ResultByParsers<TParsers>> {
 	return function* (input) {
 		if (parsers.length === 0) {
@@ -39,7 +40,7 @@ export function chain<TParsers extends Parser<any, unknown>[]>(...parsers: TPars
 export function pattern<TOutput>(strings: TemplateStringsArray, parser: Parser<string, TOutput>): Parser<string, TOutput> {
 	return map(
 		chain(literal(strings[0]), parser, literal(strings[1])),
-		([_pre, value, _post]) => value
+		([_pre, value, _post]) => value,
 	);
 }
 
@@ -51,7 +52,7 @@ export function pattern<TOutput>(strings: TemplateStringsArray, parser: Parser<s
  */
 export function patterns<TParsers extends Parser<string, unknown>[]>(strings: TemplateStringsArray, ...parsers: TParsers): Parser<string, ResultByParsers<TParsers>> {
 	return suffix(chain(
-		...parsers.map((p, i) => prefix(literal(strings[i]), p))
+		...parsers.map((p, i) => prefix(literal(strings[i]), p)),
 	), literal(strings.at(-1)!)) as Parser<string, ResultByParsers<TParsers>>;
 }
 
@@ -89,7 +90,7 @@ function repeatGreedy<TInput, TOutput>(parser: Parser<TInput, TOutput>, { minRep
 				}
 			}
 		}
-	}
+	};
 }
 
 function repeatNonGreedy<TInput, TOutput>(parser: Parser<TInput, TOutput>, { minRepeat = 0, maxRepeat = 0 } = {}): Parser<TInput, TOutput[]> {
@@ -127,7 +128,7 @@ export function separatedBy<TInput, TOutput>(parser: Parser<TInput, TOutput>, se
 					repeat(prefix(separator, parser), { greedy }),
 					optional(separator),
 				),
-				([firstValue, moreValues]) => [firstValue, ...moreValues]
+				([firstValue, moreValues]) => [firstValue, ...moreValues],
 			),
 			map(parser, v => [v]),
 			mapConst(empty<TInput>(), [] as TOutput[]),
@@ -137,9 +138,9 @@ export function separatedBy<TInput, TOutput>(parser: Parser<TInput, TOutput>, se
 			map(
 				chain(
 					parser,
-					repeat(prefix(separator, parser), { greedy })
+					repeat(prefix(separator, parser), { greedy }),
 				),
-				([firstValue, moreValues]) => [firstValue, ...moreValues]
+				([firstValue, moreValues]) => [firstValue, ...moreValues],
 			),
 			map(parser, v => [v]),
 			mapConst(empty<TInput>(), [] as TOutput[]),

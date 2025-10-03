@@ -10,7 +10,9 @@ import { chain, repeat, separatedBy } from "./combiner/multi.js";
 
 type SimpleJsonValue = string | number | boolean | null;
 type JsonArray = JsonValue[];
-interface JsonObject extends Record<string, JsonValue> { } //The interface style is required to allow recursion
+//The interface style is required to allow recursion
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface JsonObject extends Record<string, JsonValue> { }
 type JsonValue = SimpleJsonValue | JsonArray | JsonObject;
 
 function jsonNumber(): Parser<string, number> {
@@ -50,7 +52,7 @@ function jsonArray(): Parser<string, JsonArray> {
 function jsonObject(): Parser<string, JsonObject> {
 	const keyValuePairParser = map(
 		chain(whitespaces(), jsonString(), whitespaces(), literal(":"), recursive(() => jsonValue())),
-		([, key, , , value]) => [key, value] as const
+		([, key, , , value]) => [key, value] as const,
 	);
 	const jsonObjectContent = map(
 		separatedBy(keyValuePairParser, literal(","), { allowTrailingSeparator: true }),
@@ -79,7 +81,7 @@ export function jsonValue(): Parser<string, JsonValue> {
 }
 
 
-test('json tests', () => {
+test("json tests", () => {
 	{
 		const input = "42";
 		const expectedResult = 42;
@@ -91,12 +93,12 @@ test('json tests', () => {
 		assert.deepStrictEqual(parseString(input, jsonValue()), expectedResult);
 	}
 	{
-		const input = `"Hello"`;
+		const input = "\"Hello\"";
 		const expectedResult = "Hello";
 		assert.deepStrictEqual(parseString(input, jsonValue()), expectedResult);
 	}
 	{
-		const input = `"Hello\\tWorld"`;
+		const input = "\"Hello\\tWorld\"";
 		const expectedResult = "Hello\tWorld";
 		assert.deepStrictEqual(parseString(input, jsonValue()), expectedResult);
 	}

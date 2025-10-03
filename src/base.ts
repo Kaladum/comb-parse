@@ -3,11 +3,11 @@
  * @template T The type of data being parsed.
  */
 export interface ParseState<T> {
-	readonly position: number;
-	readonly data: T;
-	readonly length: number;
-	advance(): [T, ParseState<T>] | undefined;
-	isEnd(): boolean;
+	readonly position: number,
+	readonly data: T,
+	readonly length: number,
+	advance(): [T, ParseState<T>] | undefined,
+	isEnd(): boolean,
 }
 
 /**
@@ -98,9 +98,9 @@ export function parseStringUnique<TResult>(input: string, parser: Parser<string,
  * Infers the input type of a Parser.
  * @template T The parser type.
  */
-export type ParserInput<T> = T extends Parser<infer TInput, infer TOutput> ? TInput : never;
+export type ParserInput<T> = T extends Parser<infer TInput, infer _TOutput> ? TInput : never;
 /**
  * Infers the result type of a Parser.
  * @template T The parser type.
  */
-export type ParserResult<T> = T extends Parser<infer TInput, infer TOutput> ? TOutput : never;
+export type ParserResult<T> = T extends Parser<infer _TInput, infer TOutput> ? TOutput : never;

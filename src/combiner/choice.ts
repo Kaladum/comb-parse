@@ -14,14 +14,15 @@ export function optional<TInput, TOutput>(parser: Parser<TInput, TOutput>): Pars
 	};
 }
 
-type ResultByParsers<TParsers> = TParsers extends Parser<infer TInput, infer TOutput>[] ? TOutput : never;
-type InputByParsers<TParsers> = TParsers extends Parser<infer TInput, infer TOutput>[] ? TInput : never;
+type ResultByParsers<TParsers> = TParsers extends Parser<infer _TInput, infer TOutput>[] ? TOutput : never;
+type InputByParsers<TParsers> = TParsers extends Parser<infer TInput, infer _TOutput>[] ? TInput : never;
 
 /**
  * Creates a parser that tries each parser in order and yields results from any that match.
  * @param parsers Array of parsers to try.
  * @returns A parser yielding results all matching parsers.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function oneOf<TParsers extends Parser<any, unknown>[]>(...parsers: TParsers): Parser<InputByParsers<TParsers>, ResultByParsers<TParsers>> {
 	return function* (input) {
 		for (const parser of parsers) {
