@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert";
 
-import { oneChar, literal, oneCharOf, chain, optional, repeat, prefix, suffix, surround, oneOf, integer, Parser, digitNonZero, digit, pattern, patterns, inputString, float, oneCharExcept, repeatAtLeastOnce, parseStringUnique, parseStringAll, separatedBy, parseString, whitespaces, mapConst, recursive } from "./index.js";
+import { oneChar, literal, oneCharOf, chain, optional, repeat, prefix, suffix, surround, oneOf, integer, Parser, digitNonZero, digit, pattern, patterns, inputString, float, oneCharExcept, repeatAtLeastOnce, parseStringUnique, parseStringAll, separatedBy, parseString, whitespaces, mapConst, recursive, check } from "./index.js";
 
 
 test("simple tests", () => {
@@ -282,6 +282,18 @@ test("utils tests", () => {
 		const input = "Hello";
 		const expectedResult = 42;
 		const parser = mapConst(literal("Hello"), 42);
+		assert.deepStrictEqual(parseStringUnique(input, parser), expectedResult);
+	}
+	{
+		const input = "aba";
+		const expectedResult = ["a", "b", "a"];
+		const parser = check(repeat(oneCharOf("ab")), v => v.filter(x => x === "a").length === 2);
+		assert.deepStrictEqual(parseStringUnique(input, parser), expectedResult);
+	}
+	{
+		const input = "abb";
+		const expectedResult = undefined;
+		const parser = check(repeat(oneCharOf("ab")), v => v.filter(x => x === "a").length === 2);
 		assert.deepStrictEqual(parseStringUnique(input, parser), expectedResult);
 	}
 	{

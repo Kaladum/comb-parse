@@ -1,4 +1,4 @@
-import { Parser } from "./base.js";
+import { Parser, ParseState } from "./base.js";
 import { repeat } from "./combiner/multi.js";
 import { oneCharOf } from "./simple.js";
 
@@ -71,4 +71,20 @@ export function whitespace() {
  */
 export function whitespaces() {
 	return repeat(whitespace());
-} 
+}
+
+/**
+ * Creates a new parser that yields only the results from the given parser for which the validator function returns true.
+ * @param parser - The parser to run.
+ * @param validator - The validator function for the parser result and state.
+ * @returns A new parser that yields only the results passing the validator.
+ */
+export function check<TInput, TOutput>(parser: Parser<TInput, TOutput>, validator: (value: TOutput, state: ParseState<TInput>) => boolean): Parser<TInput, TOutput> {
+	return function* (input) {
+		for (const value of parser(input)) {
+			if (validator(value[0], value[1])) {
+				yield value;
+			}
+		}
+	};
+}
