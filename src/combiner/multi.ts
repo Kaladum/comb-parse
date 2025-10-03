@@ -88,6 +88,8 @@ function repeatGreedy<TInput, TOutput>(parser: Parser<TInput, TOutput>, { minRep
 					const [newValue, newState] = childValue;
 					tasks.push([[...valueSoFar, newValue], newState, parser(newState)[Symbol.iterator]()]);
 				}
+			} else {
+				yield [valueSoFar, stateSoFar];
 			}
 		}
 	};
